@@ -1,0 +1,4 @@
+Source: data/logs.jsonl
+Request: req-ba500001
+
+{"service": "api", "latency_ms": 153, "ttft_ms": 50, "tokens_in": 37, "tokens_out": 149, "cost_usd": 0.002346, "quality_score": 0.8, "tool_name": "retrieval", "tool_success": true, "payload": {"answer_preview": "Starter answer. You should improve this output logic and add better quality chec..."}, "event": "response_sent", "correlation_id": "req-ba500001", "user_id_hash": "19dbfa74132f", "feature": "monitoring", "session_id": "cp2-baseline", "env": "dev", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-09-29T09:11:01.686893Z"}

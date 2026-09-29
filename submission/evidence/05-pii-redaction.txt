@@ -1,0 +1,7 @@
+Source: data/logs.jsonl
+Test request: synthetic email, Vietnamese phone number, CCCD and credit-card patterns
+Request: req-pii0002
+
+The application log contains only redacted placeholders; none of the synthetic values were written:
+
+{"service": "api", "payload": {"message_preview": "[REDACTED_EMAIL] [REDACTED_PHONE_VN] [REDACTED_CCCD] [REDACTED_CREDIT_CARD]"}, "event": "request_received", "user_id_hash": "cbb96d345bf3", "session_id": "pii-evidence", "feature": "monitoring", "correlation_id": "req-pii0002", "env": "dev", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-09-29T10:47:36.587031Z"}

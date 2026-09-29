@@ -1,0 +1,4 @@
+Command: python scripts/validate_dashboard.py
+Source commit: a201204906724b158408b3c5451e2b1ecd86fb3d
+
+HỢP LỆ: 6/6 panel có trong dashboard contract.

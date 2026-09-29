@@ -1,0 +1,5 @@
+Command: python -m pytest -q
+Source commit: a201204906724b158408b3c5451e2b1ecd86fb3d
+
+...........................                                              [100%]
+27 passed in 4.49s
