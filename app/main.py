@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from structlog.contextvars import bind_contextvars
 
 from .agent import LabAgent
+from .dashboard import router as dashboard_router
 from .incidents import disable, enable, status
 from .logging_config import configure_logging, get_logger
 from .metrics import record_error, snapshot
@@ -34,6 +37,12 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Day 13 Monitoring & LLMOps Lab", lifespan=lifespan)
 app.add_middleware(CorrelationIdMiddleware)
+app.include_router(dashboard_router)
+app.mount(
+    "/assets",
+    StaticFiles(directory=Path(__file__).resolve().parent / "static"),
+    name="assets",
+)
 
 
 @app.get("/health")

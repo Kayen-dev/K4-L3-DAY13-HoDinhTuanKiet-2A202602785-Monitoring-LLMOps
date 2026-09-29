@@ -7,7 +7,17 @@ primary_slo:
     total_event: 'event == "request_received"'
   target_percent: 99.5
   error_budget_percent: 0.5
-  note: Học viên phải giải thích hoặc điều chỉnh ngưỡng bằng baseline của mình.
+  rationale: >-
+    The 3000 ms threshold is intentionally above the healthy fake-LLM baseline
+    but below the user-visible latency produced by the rag_slow incident. A
+    99.5% target leaves enough budget for practice incidents without hiding a
+    sustained regression.
+  error_budget:
+    formula: total_requests * (1 - target_percent / 100)
+    example_total_requests: 100000
+    allowed_bad_requests: 500
+    equivalent_unavailable_minutes_over_28d: 201.6
+    policy: Page the owner when projected 28-day budget consumption exceeds 100%.
 guardrails:
   error_rate_pct_max: 2
   daily_cost_usd_max: 2.5

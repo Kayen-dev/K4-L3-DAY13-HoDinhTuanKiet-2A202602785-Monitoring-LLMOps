@@ -123,6 +123,21 @@ Dashboard dùng `data/logs.jsonl` làm nguồn chuẩn và giữ đúng 6 panel 
 - `config/alert_rules.yaml`: ba alert symptom-based, có duration, severity, owner, Slack channel và runbook;
 - `docs/alerts.md`: cách kiểm tra và mitigation cho từng alert.
 
+Các lệnh CP2 đã được đóng gói để có thể chạy lại mà không in API key:
+
+```bash
+python scripts/manage_prompts.py bootstrap
+python scripts/generate_traces.py --label baseline --count 5
+python scripts/generate_traces.py --label candidate --count 5
+python scripts/manage_prompts.py promote
+python scripts/generate_traces.py --label production --count 1
+python scripts/manage_prompts.py rollback
+```
+
+Sau khi chạy API, mở `http://127.0.0.1:8000/dashboard` để xem dashboard runtime.
+Trang tự đọc log trong 60 phút gần nhất, refresh mỗi 30 giây và không cần thêm
+dịch vụ frontend hoặc chart CDN.
+
 ### CP3 — Challenge chính thức
 
 Chỉ chạy khi Lab Coach thông báo mở challenge của K4-L3A. Tại CP3, Lab Coach gửi riêng file đúng lớp; lưu file đó tại `config/challenge.json`. File này đã được `.gitignore` và **không được** force-add/commit/push:

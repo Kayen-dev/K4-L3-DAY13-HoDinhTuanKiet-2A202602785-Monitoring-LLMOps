@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="A live 60-minute LLMOps observability dashboard." />
+    <title>TraceDeck · LLMOps telemetry</title>
+    <link rel="stylesheet" href="/assets/dashboard.css" />
+    <script src="/assets/dashboard.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#dashboard-panels">Skip to telemetry panels</a>
+    <div class="shell">
+      <header class="masthead">
+        <div class="brand-block">
+          <p class="eyebrow">K4 / L3A · Runtime observability</p>
+          <h1><span>Trace</span>Deck</h1>
+          <p class="lede">
+            One hour of model traffic, read like a flight recorder.
+            Follow symptoms here, then pivot to logs and Langfuse traces.
+          </p>
+        </div>
+        <div class="control-block" aria-label="Dashboard controls">
+          <div class="live-state" id="live-state" role="status" aria-live="polite">
+            <span class="live-dot" aria-hidden="true"></span>
+            Connecting
+          </div>
+          <div class="window-label">
+            <span>Window</span>
+            <strong id="window-value">60 min</strong>
+          </div>
+          <button class="refresh-button" id="refresh-button" type="button">
+            Refresh data
+          </button>
+        </div>
+      </header>
+
+      <section class="telemetry-rail" aria-labelledby="slo-title">
+        <div class="rail-copy">
+          <p class="rail-kicker">Primary SLO</p>
+          <h2 id="slo-title">Fast successful requests</h2>
+          <p id="slo-summary">Waiting for the latest log window.</p>
+        </div>
+        <div class="rail-meter-block">
+          <div class="rail-values">
+            <span>Current <strong id="slo-achieved">—</strong></span>
+            <span>Target <strong id="slo-target">99.5%</strong></span>
+          </div>
+          <div
+            class="rail-meter"
+            role="progressbar"
+            aria-label="SLO attainment"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            id="slo-meter"
+          >
+            <span id="slo-fill"></span>
+            <i aria-hidden="true"></i>
+          </div>
+          <p class="budget-copy" id="budget-copy">Error budget is being calculated.</p>
+        </div>
+      </section>
+
+      <div class="system-message" id="system-message" role="status" hidden></div>
+
+      <main id="dashboard-panels" class="panel-grid" aria-label="Six required monitoring panels">
+        <div class="loading-card" aria-live="polite">
+          <span class="loading-bar"></span>
+          <p>Reading structured logs…</p>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <p>
+          Source <code>data/logs.jsonl</code> · Refresh every
+          <span id="refresh-interval">30</span>s · Generated
+          <time id="generated-at">—</time>
+        </p>
+        <p class="footer-note">Metrics → Logs → Traces → Root cause</p>
+      </footer>
+    </div>
+  </body>
+</html>

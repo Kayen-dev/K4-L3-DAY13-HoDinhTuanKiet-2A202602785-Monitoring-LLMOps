@@ -37,38 +37,38 @@
 
 | Nội dung | Baseline | Kết quả cuối | Nhận xét |
 |---|---|---|---|
-| `validate_logs.py` | | | |
-| `validate_dashboard.py` | | | |
-| `pytest` | | | |
-| Số traces hợp lệ | | | |
-| Số PII leak | | | |
-| Latency P95 / TTFT P95 | | | |
-| Retrieval success rate | | | |
+| `validate_logs.py` | Chưa đạt do TODO CP1 | 100/100 | Đủ schema, correlation, enrichment và PII scrub |
+| `validate_dashboard.py` | Contract starter | 6/6 panel | Runtime UI đọc trực tiếp `data/logs.jsonl` |
+| `pytest` | | 27 passed | Chạy trên source cuối |
+| Số traces hợp lệ | 0 | 16 request trace đã tạo | Baseline, candidate, promote và rollback |
+| Số PII leak | Có dữ liệu test trước scrub | 0 | Theo `validate_logs.py` |
+| Latency P95 / TTFT P95 | | 1.911 ms / 50 ms | Cửa sổ dashboard lúc chụp evidence |
+| Retrieval success rate | | 100% | Cửa sổ dashboard lúc chụp evidence |
 
 ## 4. Logging và PII
 
-- **Cách tạo/nhận và truyền correlation ID:**
-- **Các metadata được ghi vào structured log:**
-- **Cách bảo đảm PII được scrub trước khi ghi:**
-- **Cách kiểm chứng kết quả:**
+- **Cách tạo/nhận và truyền correlation ID:** Middleware nhận `x-request-id` hoặc tạo `req-<8-hex>`, bind vào context, gắn vào `request.state` và trả lại cùng `x-response-time-ms`.
+- **Các metadata được ghi vào structured log:** `correlation_id`, `user_id_hash`, `session_id`, `feature`, `model`, `env` cùng latency, TTFT, token, cost, quality và tool status.
+- **Cách bảo đảm PII được scrub trước khi ghi:** Processor scrub đệ quy chạy sau bước materialize exception/stack nhưng trước file writer và JSON renderer.
+- **Cách kiểm chứng kết quả:** Unit test email/điện thoại/CCCD/thẻ và regression test opaque ID; `validate_logs.py` đạt 100/100 với 0 PII leak.
 
 ## 5. Tracing và prompt versioning
 
-- **Cách xác nhận traces do chính tôi tạo trong project cá nhân:**
-- **Cấu trúc root/retrieval/generation observations:**
-- **Cách nối trace với log:**
-- **Prompt name:**
-- **Version/label baseline:**
-- **Version/label candidate:**
-- **Trace ID của mỗi version:**
-- **Cách promote và rollback `production`:**
+- **Cách xác nhận traces do chính tôi tạo trong project cá nhân:** Workload dùng user hash `19dbfa74132f`, session `cp2-baseline`/`cp2-candidate` và correlation ID có prefix `req-ba5...`/`req-ca1...`.
+- **Cấu trúc root/retrieval/generation observations:** Root `lab-agent-run` loại agent chứa child `retrieval` loại retriever và `fake-llm-generation` loại generation; generation có model, prompt reference, usage, total cost và TTFT.
+- **Cách nối trace với log:** Cùng `correlation_id` được bind vào structured log và trace metadata; raw input/output không được capture, chỉ dùng preview đã scrub.
+- **Prompt name:** `day13-chat`
+- **Version/label baseline:** v1 — `baseline`, `production` sau rollback.
+- **Version/label candidate:** v2 — `candidate`.
+- **Trace ID của mỗi version:** baseline `88a3422d0fb37deba428a0acc8131fcd`; candidate `f1806c5adff8cb2afacc918cbe49d63d`; production v2 `4b3105177c6695f5b45a17caa8c3cf4e`; production sau rollback v1 `b01290e5c5339015c86dab5cd38aef83`.
+- **Cách promote và rollback `production`:** `manage_prompts.py promote` chuyển production sang v2, chạy request kiểm chứng; `manage_prompts.py rollback` đưa production về v1. Trạng thái cuối: baseline v1, candidate v2, production v1.
 
 ## 6. Dashboard, SLO và alerts
 
-- **Dashboard và sáu panel:**
-- **SLO và lý do chọn:**
-- **Cách tính error budget:**
-- **Ba alert và runbook tương ứng:**
+- **Dashboard và sáu panel:** `/dashboard` hiển thị latency P50/P95/P99 + TTFT, traffic, errors + retrieval success, cost, input/output tokens và quality trong 60 phút; refresh 30 giây, có đơn vị và threshold line. Evidence: `evidence/11-dashboard-overview.png`.
+- **SLO và lý do chọn:** 99,5% request có response thành công trong ≤ 3.000 ms trên 28 ngày. Ngưỡng cao hơn baseline fake LLM nhưng đủ thấp để phát hiện `rag_slow` có ảnh hưởng người dùng.
+- **Cách tính error budget:** `total_requests × (1 − 0,995)`. Ví dụ 100.000 request cho phép 500 request xấu; tương đương 201,6 phút trên cửa sổ 28 ngày nếu traffic đều.
+- **Ba alert và runbook tương ứng:** latency P95 > 3.000 ms/10m, error rate > 2%/5m, quality < 0,75 hoặc retrieval success < 90%/15m; cả ba gửi Slack `#llmops-alerts`, có owner và runbook trong `docs/alerts.md`.
 
 ## 7. Điều tra challenge
 
